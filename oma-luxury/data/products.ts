@@ -36,7 +36,7 @@ export const collections = [
   "Signature Pieces",
 ] as const;
 
-export const products: Product[] = [
+export const seedProducts: Product[] = [
   {
     id: "ww-001",
     name: "Amara Silk Midi Dress",

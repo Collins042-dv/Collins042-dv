@@ -139,13 +139,13 @@ export function Navbar() {
 
       <div className={`fixed inset-0 z-[65] ${searchOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
         <button className={`absolute inset-0 bg-black/55 transition ${searchOpen ? "opacity-100" : "opacity-0"}`} onClick={() => setSearchOpen(false)} aria-label="Close search" />
-        <div className={`absolute inset-x-4 top-6 mx-auto max-w-3xl rounded-[2rem] bg-white p-5 shadow-soft transition duration-300 ${searchOpen ? "translate-y-0 opacity-100" : "-translate-y-6 opacity-0"}`}>
+        <div className={`absolute inset-x-2 top-6 mx-auto max-w-3xl rounded-[2rem] bg-white p-5 shadow-soft transition duration-300 sm:inset-x-4 ${searchOpen ? "translate-y-0 opacity-100" : "-translate-y-6 opacity-0"}`}>
           <div className="flex items-center gap-3">
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               onKeyDown={(event) => event.key === "Enter" && goToSearch()}
-              placeholder="Search dresses, bags, fragrances..."
+              placeholder={brand.searchPlaceholder}
               className="w-full rounded-full border border-brand-beige px-5 py-4 text-sm outline-none"
             />
             <button onClick={goToSearch} className="rounded-full bg-brand-black px-5 py-4 text-xs uppercase tracking-[0.2em] text-white">Search</button>
