@@ -25,7 +25,7 @@ export function WishlistClient() {
   return (
     <AccountShell title="Wishlist" description="Keep your favourite fashion, bags and fragrances close for later.">
       {items.length ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
           {items.map((product) => <ProductCard key={product.id} product={product} />)}
         </div>
       ) : (

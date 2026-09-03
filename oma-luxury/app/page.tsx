@@ -88,7 +88,7 @@ export default async function HomePage() {
           </div>
           <div className="self-end rounded-[2rem] border border-white/10 bg-white/10 p-6 backdrop-blur-md">
             <p className="text-xs uppercase tracking-[0.3em] text-brand-champagne">Editorial note</p>
-            <p className="mt-4 font-heading text-3xl">Luxury that moves with you.</p>
+            <p className="mt-4 font-heading text-3xl">{brand.heroEditorialNote}</p>
             <p className="mt-4 text-sm leading-7 text-white/75">
               Discover elegant dressing, sculpted handbags and immersive fragrances designed to translate seamlessly from meetings to moments worth celebrating.
             </p>

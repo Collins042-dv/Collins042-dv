@@ -1,10 +1,10 @@
-import { products, type Product } from "@/data/products";
+import { seedProducts, type Product } from "@/data/products";
 import type { ProductFiltersState } from "@/types/commerce";
 
 type ProductQuery = Partial<ProductFiltersState> & { featuredOnly?: boolean; newArrivalsOnly?: boolean };
 
 export async function getProducts(filters?: ProductQuery) {
-  let filtered = [...products];
+  let filtered = [...seedProducts];
 
   if (filters?.search) {
     const search = filters.search.toLowerCase();
@@ -77,17 +77,17 @@ export async function getProducts(filters?: ProductQuery) {
 }
 
 export async function getProductBySlug(slug: string) {
-  return products.find((product) => product.slug === slug) ?? null;
+  return seedProducts.find((product) => product.slug === slug) ?? null;
 }
 
 export async function getFeaturedProducts() {
-  return products.filter((product) => product.featured).slice(0, 8);
+  return seedProducts.filter((product) => product.featured).slice(0, 8);
 }
 
 export async function getNewArrivals() {
-  return products.filter((product) => product.newArrival).slice(0, 8);
+  return seedProducts.filter((product) => product.newArrival).slice(0, 8);
 }
 
 export async function getRelatedProducts(product: Product) {
-  return products.filter((item) => item.category === product.category && item.id !== product.id).slice(0, 4);
+  return seedProducts.filter((item) => item.category === product.category && item.id !== product.id).slice(0, 4);
 }

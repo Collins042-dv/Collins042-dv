@@ -13,7 +13,7 @@ export function ContactClient() {
       <div className="mb-12 max-w-3xl">
         <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">Contact</p>
         <h1 className="mt-3 font-heading text-5xl">Speak with {brand.name}</h1>
-        <p className="mt-5 text-sm leading-8 text-neutral-600">We would love to help with product enquiries, delivery questions and personal shopping requests.</p>
+        <p className="mt-5 text-sm leading-8 text-neutral-600">{brand.contactDescription}</p>
       </div>
       <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
         <form

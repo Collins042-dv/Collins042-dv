@@ -38,7 +38,7 @@ export function Footer() {
           <p className="mt-6 text-xs uppercase tracking-[0.25em] text-brand-champagne">{brand.tagline}</p>
           <div className="mt-8 rounded-[2rem] border border-white/10 bg-white/5 p-5">
             <p className="text-xs uppercase tracking-[0.25em] text-white/60">Newsletter</p>
-            <p className="mt-2 text-sm text-white/80">Exclusive drops, fragrance launches and styling notes.</p>
+            <p className="mt-2 text-sm text-white/80">{brand.newsletterDescription}</p>
             <form className="mt-4 flex flex-col gap-3 sm:flex-row">
               <input
                 type="email"
