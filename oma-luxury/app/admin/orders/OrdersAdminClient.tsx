@@ -19,7 +19,12 @@ export function OrdersAdminClient() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    adminOrderService.list().then(setOrders);
+    adminOrderService
+      .list()
+      .then(setOrders)
+      .catch((reason: unknown) => {
+        setError(reason instanceof Error ? reason.message : "Unable to load orders.");
+      });
   }, []);
 
   return (

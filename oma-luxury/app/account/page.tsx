@@ -15,7 +15,11 @@ export const metadata: Metadata = {
 export default function AccountPage({
   searchParams,
 }: {
-  searchParams?: { welcome?: string };
+  searchParams?: { welcome?: string | string[] };
 }) {
-  return <AccountOverviewClient welcome={searchParams?.welcome === "1"} />;
+  const welcomeValue = Array.isArray(searchParams?.welcome)
+    ? searchParams?.welcome[0]
+    : searchParams?.welcome;
+
+  return <AccountOverviewClient welcome={welcomeValue === "1"} />;
 }

@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { supabase, applyCookies } = createRouteHandlerSupabaseClient(request);
-  const redirectTo = `${new URL(request.url).origin}/account/login`;
+  const redirectTo = `${new URL(request.url).origin}/account/reset-password`;
   const reset = await supabase.auth.resetPasswordForEmail(normalizeEmail(body!.email!), { redirectTo });
 
   if (reset.error) {

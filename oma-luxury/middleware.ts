@@ -8,6 +8,7 @@ const publicAccountRoutes = new Set([
   "/account/login",
   "/account/register",
   "/account/forgot-password",
+  "/account/reset-password",
 ]);
 
 export async function middleware(request: NextRequest) {

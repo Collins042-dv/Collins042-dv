@@ -11,11 +11,14 @@ export const metadata: Metadata = {
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams?: { next?: string };
+  searchParams?: { next?: string | string[] };
 }) {
+  const rawNextPath = Array.isArray(searchParams?.next)
+    ? searchParams?.next[0]
+    : searchParams?.next;
   const nextPath =
-    typeof searchParams?.next === "string" && searchParams.next.startsWith("/")
-      ? searchParams.next
+    typeof rawNextPath === "string" && rawNextPath.startsWith("/")
+      ? rawNextPath
       : "/account";
 
   return <LoginClient nextPath={nextPath} />;

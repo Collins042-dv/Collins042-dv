@@ -109,7 +109,12 @@ export function ProductsAdminClient() {
   const editing = useMemo(() => products.find((product) => product.id === form.id) ?? null, [form.id, products]);
 
   const loadProducts = () => {
-    adminProductService.list().then(setProducts);
+    adminProductService
+      .list()
+      .then(setProducts)
+      .catch((reason: unknown) => {
+        setError(reason instanceof Error ? reason.message : "Unable to load products.");
+      });
   };
 
   useEffect(() => {

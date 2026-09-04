@@ -8,6 +8,7 @@ export interface AuthUser {
 import { AUTH_CONFIGURATION_MESSAGE, isAuthConfigured } from "@/lib/auth-config";
 import {
   validateLoginInput,
+  validatePassword,
   validatePasswordResetInput,
   validateProfileInput,
   validateRegistrationInput,
@@ -96,6 +97,15 @@ export async function resetPassword(email: string): Promise<void> {
   await requestAuth("/api/auth/reset-password", {
     method: "POST",
     body: JSON.stringify({ email }),
+  });
+}
+
+export async function updatePassword(password: string): Promise<void> {
+  assertAuthConfigured();
+  validatePassword(password);
+  await requestAuth("/api/auth/update-password", {
+    method: "POST",
+    body: JSON.stringify({ password }),
   });
 }
 

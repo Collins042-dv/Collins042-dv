@@ -9,6 +9,7 @@ import {
   logout as logoutService,
   register as registerService,
   resetPassword as resetPasswordService,
+  updatePassword as updatePasswordService,
   updateCurrentUser,
   type AuthUser,
 } from "@/services/auth";
@@ -22,6 +23,7 @@ interface AuthContextValue {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
   updateProfile: (data: Partial<AuthUser>) => Promise<void>;
 }
 
@@ -68,8 +70,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(authUser);
   };
 
+  const updatePassword = async (password: string) => {
+    await updatePasswordService(password);
+  };
+
   const value = useMemo(
-    () => ({ user, loading, configured, configError, login, register, logout, resetPassword, updateProfile }),
+    () => ({ user, loading, configured, configError, login, register, logout, resetPassword, updatePassword, updateProfile }),
     [configError, configured, user, loading],
   );
 
