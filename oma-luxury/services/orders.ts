@@ -44,6 +44,10 @@ function writeOrders(orders: Order[]) {
   storage.setItem(ORDERS_KEY, JSON.stringify(orders));
 }
 
+function sortOrders(orders: Order[]) {
+  return [...orders].sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt));
+}
+
 export async function createOrder(data: CreateOrderData): Promise<Order> {
   const orders = readOrders();
   const order: Order = {
@@ -62,5 +66,26 @@ export async function createOrder(data: CreateOrderData): Promise<Order> {
 }
 
 export async function getOrders(userId: string): Promise<Order[]> {
-  return readOrders().filter((order) => order.userId === userId);
+  return sortOrders(readOrders().filter((order) => order.userId === userId));
+}
+
+export async function getAllOrders(): Promise<Order[]> {
+  return sortOrders(readOrders());
+}
+
+export async function updateOrderStatus(id: string, status: string): Promise<Order> {
+  const orders = readOrders();
+  const current = orders.find((order) => order.id === id);
+
+  if (!current) {
+    throw new Error("Order not found.");
+  }
+
+  const updatedOrder = {
+    ...current,
+    status,
+  };
+
+  writeOrders(orders.map((order) => (order.id === id ? updatedOrder : order)));
+  return updatedOrder;
 }

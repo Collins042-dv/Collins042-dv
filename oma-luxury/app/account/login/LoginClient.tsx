@@ -1,21 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/store/AuthContext";
 
-export function LoginClient() {
+export function LoginClient({ nextPath = "/account" }: { nextPath?: string }) {
   const { login, configured, configError } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const nextPath = searchParams.get("next") || "/account";
 
   return (
     <div className="mx-auto max-w-xl px-6 py-20 lg:px-10">

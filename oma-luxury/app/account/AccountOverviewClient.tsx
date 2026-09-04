@@ -1,18 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AccountShell } from "@/components/account/AccountShell";
 import { Button } from "@/components/ui/Button";
 import { brand } from "@/config/brand";
 import { useAuth } from "@/store/AuthContext";
 
-export function AccountOverviewClient() {
+export function AccountOverviewClient({ welcome = false }: { welcome?: boolean }) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const welcome = searchParams.get("welcome") === "1";
 
   useEffect(() => {
     if (!loading && !user) {

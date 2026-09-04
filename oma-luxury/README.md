@@ -84,12 +84,87 @@ Theme colours and fonts live in **`config/theme.ts`**.
 | Product browsing / filtering | ✅ Live (client-side) | Filters the seed product array |
 | Cart | ✅ Live | localStorage-persisted |
 | Wishlist | ✅ Live | localStorage-persisted |
-| Auth (register/login/logout) | ✅ Functional mock | localStorage only — swap with real provider |
+| Auth (register/login/logout/reset/session) | ✅ Supabase-backed | Requires Supabase env vars and `profiles` table |
 | Checkout form | ✅ Live | Creates order object locally |
 | Payments | ⚠️ Stubbed | `services/payments.ts` — set `PAYMENTS_ENABLED = true` and add Paystack keys |
 | Email notifications | ⚠️ Stubbed | Not wired — add SendGrid/Resend in `services/email.ts` |
 | Database | ⚠️ Seed data | `data/products.ts` — replace `services/products.ts` with real API |
-| Admin dashboard | ⚠️ Interfaces only | See `ADMIN.md` and `services/admin/` |
+| Admin dashboard | ✅ Protected foundation | `/admin/*` is protected by middleware + server role checks |
+
+---
+
+## Authentication & Admin Setup
+
+Authentication now uses **Supabase Auth** behind the existing `services/auth.ts` interface. If auth is not configured, the account screens fail gracefully with a clear message instead of inventing credentials or pretending to succeed.
+
+### Required environment variables
+
+Create **`.env.local`** (it is gitignored) with:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLIC_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVER_ONLY_SERVICE_ROLE_KEY
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=ChangeMe123
+```
+
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are required for customer sign-up, login, logout, password reset, and session persistence.
+- `SUPABASE_SERVICE_ROLE_KEY` is **server-only** and is only used by the admin seed script.
+- `ADMIN_EMAIL` and `ADMIN_PASSWORD` are only read by the seed script. No default admin credentials are hardcoded anywhere.
+
+### Required `profiles` table
+
+Create a `profiles` table in Supabase keyed by the auth user ID so admin/customer roles are enforced server-side:
+
+```sql
+create table if not exists public.profiles (
+  id uuid primary key references auth.users (id) on delete cascade,
+  email text not null unique,
+  name text not null,
+  role text not null check (role in ('CUSTOMER', 'ADMIN')),
+  created_at timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+
+create policy "Users can view their own profile"
+on public.profiles
+for select
+to authenticated
+using (auth.uid() = id);
+
+create policy "Users can insert their own profile"
+on public.profiles
+for insert
+to authenticated
+with check (auth.uid() = id);
+
+create policy "Users can update their own profile"
+on public.profiles
+for update
+to authenticated
+using (auth.uid() = id)
+with check (auth.uid() = id);
+```
+
+### Seed the first admin
+
+Run the server-side seed script only after the env vars above exist:
+
+```bash
+cd oma-luxury
+npm install
+npm run seed:admin
+```
+
+The script exits with a clear message if `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_EMAIL`, or `ADMIN_PASSWORD` is missing. It creates or reuses the auth user, then upserts an `ADMIN` role in `profiles`.
+
+### Route protection
+
+- `/account/*` protected routes are enforced by **Next.js middleware** using the active Supabase session cookie.
+- `/admin/*` is protected by **middleware and a server-side layout check** against the `profiles.role` value.
+- Customers who type `/admin` directly are redirected to `/forbidden`.
 
 ---
 
@@ -104,7 +179,9 @@ Theme colours and fonts live in **`config/theme.ts`**.
 ## Connecting a Real Database
 
 1. Replace `data/products.ts` seed data with DB queries in `services/products.ts`
-2. All components use the service layer — no component-level data fetching to change
+2. Replace the draft admin catalog persistence in `services/admin/products.ts` with your production products API
+3. Replace the local order persistence in `services/orders.ts` / `services/admin/orders.ts` with a shared database-backed order store
+4. All components use the service layer — no component-level data fetching to change
 
 ---
 
