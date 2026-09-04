@@ -242,8 +242,8 @@ export function ProductsAdminClient() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-neutral-600">Category</label>
-                <select value={form.category} onChange={(event) => setForm((current) => ({ ...current, category: event.target.value as ProductCategory }))} className="w-full rounded-2xl border border-brand-beige bg-white px-4 py-3 text-sm">
+                <label htmlFor="admin-product-category" className="mb-2 block text-xs uppercase tracking-[0.2em] text-neutral-600">Category</label>
+                <select id="admin-product-category" value={form.category} onChange={(event) => setForm((current) => ({ ...current, category: event.target.value as ProductCategory }))} className="w-full rounded-2xl border border-brand-beige bg-white px-4 py-3 text-sm">
                   {["womens-wear", "bags", "perfumes", "accessories"].map((category) => (
                     <option key={category} value={category}>
                       {category}
@@ -252,8 +252,8 @@ export function ProductsAdminClient() {
                 </select>
               </div>
               <div>
-                <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-neutral-600">Collection</label>
-                <select value={form.collection} onChange={(event) => setForm((current) => ({ ...current, collection: event.target.value }))} className="w-full rounded-2xl border border-brand-beige bg-white px-4 py-3 text-sm">
+                <label htmlFor="admin-product-collection" className="mb-2 block text-xs uppercase tracking-[0.2em] text-neutral-600">Collection</label>
+                <select id="admin-product-collection" value={form.collection} onChange={(event) => setForm((current) => ({ ...current, collection: event.target.value }))} className="w-full rounded-2xl border border-brand-beige bg-white px-4 py-3 text-sm">
                   {collections.map((collection) => (
                     <option key={collection} value={collection}>
                       {collection}
@@ -268,8 +268,8 @@ export function ProductsAdminClient() {
                 <Input type="number" min="0" value={form.stock} onChange={(event) => setForm((current) => ({ ...current, stock: event.target.value }))} required />
               </div>
               <div>
-                <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-neutral-600">Status</label>
-                <select value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value as ProductStatus }))} className="w-full rounded-2xl border border-brand-beige bg-white px-4 py-3 text-sm">
+                <label htmlFor="admin-product-status" className="mb-2 block text-xs uppercase tracking-[0.2em] text-neutral-600">Status</label>
+                <select id="admin-product-status" value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value as ProductStatus }))} className="w-full rounded-2xl border border-brand-beige bg-white px-4 py-3 text-sm">
                   {["IN_STOCK", "LOW_STOCK", "SOLD_OUT", "COMING_SOON", "PREORDER"].map((status) => (
                     <option key={status} value={status}>
                       {status.replace(/_/g, " ")}

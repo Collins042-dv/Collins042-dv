@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { AUTH_CONFIGURATION_MESSAGE, isAuthConfigured } from "@/lib/auth-config";
 import { buildAuthUser, getProfileByUserId, mapAuthErrorMessage, upsertProfile } from "@/lib/auth-server";
 import { normalizeEmail, validateProfileInput } from "@/lib/auth-validation";
-import { createRouteHandlerSupabaseClient } from "@/lib/supabase/server";
+import { createRouteHandlerSupabaseClient, createServiceRoleSupabaseClient } from "@/lib/supabase/server";
 
 export async function PATCH(request: NextRequest) {
   if (!isAuthConfigured()) {
@@ -34,6 +34,55 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
+  let existingProfile;
+
+  try {
+    existingProfile = await getProfileByUserId(supabase, user.id);
+  } catch (error) {
+    return applyCookies(
+      NextResponse.json(
+        { error: error instanceof Error ? error.message : "Unable to load your profile role." },
+        { status: 500 },
+      ),
+    );
+  }
+
+  if (email !== (existingProfile?.email ?? user.email ?? "")) {
+    let adminSupabase;
+
+    try {
+      adminSupabase = createServiceRoleSupabaseClient();
+    } catch (error) {
+      return applyCookies(
+        NextResponse.json(
+          { error: error instanceof Error ? error.message : "SUPABASE_SERVICE_ROLE_KEY is required to validate email changes." },
+          { status: 500 },
+        ),
+      );
+    }
+
+    const { data: conflictingProfile, error: conflictError } = await adminSupabase
+      .from("profiles")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (conflictError) {
+      return applyCookies(
+        NextResponse.json(
+          { error: "Unable to validate the new email address." },
+          { status: 500 },
+        ),
+      );
+    }
+
+    if (conflictingProfile && conflictingProfile.id !== user.id) {
+      return applyCookies(
+        NextResponse.json({ error: "An account with this email already exists." }, { status: 409 }),
+      );
+    }
+  }
+
   const update = await supabase.auth.updateUser({
     ...(email !== user.email ? { email } : {}),
     data: {
@@ -46,19 +95,6 @@ export async function PATCH(request: NextRequest) {
   if (update.error || !update.data.user) {
     return applyCookies(
       NextResponse.json({ error: mapAuthErrorMessage(update.error?.message) }, { status: 400 }),
-    );
-  }
-
-  let existingProfile;
-
-  try {
-    existingProfile = await getProfileByUserId(supabase, user.id);
-  } catch (error) {
-    return applyCookies(
-      NextResponse.json(
-        { error: error instanceof Error ? error.message : "Unable to load your profile role." },
-        { status: 500 },
-      ),
     );
   }
 

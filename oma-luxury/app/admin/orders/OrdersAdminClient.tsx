@@ -83,6 +83,7 @@ export function OrdersAdminClient() {
                       setError(err instanceof Error ? err.message : "Unable to update the order status.");
                     }
                   }}
+                  aria-label={`Update status for order ${order.id}`}
                   className="rounded-full border border-brand-beige bg-white px-4 py-3 text-xs uppercase tracking-[0.2em]"
                 >
                   {orderStatuses.map((status) => (
