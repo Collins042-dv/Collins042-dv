@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/Input";
 
 interface ProductFormState {
   id: string;
+  createdAt: string;
   name: string;
   slug: string;
   description: string;
@@ -29,6 +30,7 @@ interface ProductFormState {
 
 const defaultForm: ProductFormState = {
   id: "",
+  createdAt: "",
   name: "",
   slug: "",
   description: "",
@@ -56,6 +58,7 @@ function slugify(value: string) {
 function productToForm(product: Product): ProductFormState {
   return {
     id: product.id,
+    createdAt: product.createdAt,
     name: product.name,
     slug: product.slug,
     description: product.description,
@@ -92,7 +95,7 @@ function formToProduct(form: ProductFormState): Product {
     images: form.images.split("\n").map((item) => item.trim()).filter(Boolean),
     featured: form.featured,
     newArrival: form.newArrival,
-    createdAt: now,
+    createdAt: form.createdAt || now,
     updatedAt: now,
   };
 }
@@ -181,11 +184,18 @@ export function ProductsAdminClient() {
                   type="button"
                   variant="ghost"
                   onClick={async () => {
-                    await adminProductService.remove(product.id);
-                    if (form.id === product.id) {
-                      setForm(defaultForm);
+                    setError("");
+                    setMessage("");
+                    try {
+                      await adminProductService.remove(product.id);
+                      if (form.id === product.id) {
+                        setForm(defaultForm);
+                      }
+                      setMessage("Product removed from the draft admin catalog.");
+                      loadProducts();
+                    } catch (err) {
+                      setError(err instanceof Error ? err.message : "Unable to remove product.");
                     }
-                    loadProducts();
                   }}
                 >
                   Delete

@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
   if (!user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/account/login";
-    redirectUrl.searchParams.set("next", pathname);
+    redirectUrl.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(redirectUrl);
   }
 

@@ -16,6 +16,7 @@ const orderStatuses = [
 
 export function OrdersAdminClient() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     adminOrderService.list().then(setOrders);
@@ -28,6 +29,11 @@ export function OrdersAdminClient() {
         title="Order operations"
         description="Review locally captured orders, customer details and fulfillment status while the production order database and payment webhooks are being connected."
       />
+      {error ? (
+        <div className="mb-6 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+          {error}
+        </div>
+      ) : null}
       <div className="space-y-4">
         {orders.length ? (
           orders.map((order) => (
@@ -64,8 +70,13 @@ export function OrdersAdminClient() {
                 <select
                   value={order.status}
                   onChange={async (event) => {
-                    const updated = await adminOrderService.updateStatus(order.id, event.target.value);
-                    setOrders((current) => current.map((item) => (item.id === order.id ? updated : item)));
+                    setError("");
+                    try {
+                      const updated = await adminOrderService.updateStatus(order.id, event.target.value);
+                      setOrders((current) => current.map((item) => (item.id === order.id ? updated : item)));
+                    } catch (err) {
+                      setError(err instanceof Error ? err.message : "Unable to update the order status.");
+                    }
                   }}
                   className="rounded-full border border-brand-beige bg-white px-4 py-3 text-xs uppercase tracking-[0.2em]"
                 >

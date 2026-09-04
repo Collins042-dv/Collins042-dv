@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (signUp.data.session && signUp.data.user) {
+  if (signUp.data.user) {
     const profile = await upsertProfile(supabase, {
       id: signUp.data.user.id,
       name,
@@ -59,7 +59,9 @@ export async function POST(request: NextRequest) {
       return applyCookies(profile);
     }
 
-    return applyCookies(NextResponse.json({ user: buildAuthUser(signUp.data.user, profile) }));
+    if (signUp.data.session) {
+      return applyCookies(NextResponse.json({ user: buildAuthUser(signUp.data.user, profile) }));
+    }
   }
 
   const signIn = await supabase.auth.signInWithPassword({ email, password });

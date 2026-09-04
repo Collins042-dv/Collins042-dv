@@ -30,17 +30,18 @@ export function OverviewClient() {
       adminOrderService.list(),
     ]).then(([products, customers, orders]) => {
       const orderRows = orders.status === "fulfilled" ? orders.value : [];
+      const errors = [products, customers, orders]
+        .filter((result): result is PromiseRejectedResult => result.status === "rejected")
+        .map((result) =>
+          result.reason instanceof Error ? result.reason.message : "Some dashboard data could not be loaded.",
+        );
+
       setSummary({
         products: products.status === "fulfilled" ? products.value.length : 0,
         customers: customers.status === "fulfilled" ? customers.value.length : 0,
         orders: orderRows.length,
         revenue: orderRows.reduce((total, order) => total + order.total, 0),
-        error:
-          customers.status === "rejected"
-            ? customers.reason instanceof Error
-              ? customers.reason.message
-              : "Some dashboard data could not be loaded."
-            : "",
+        error: errors.join(" "),
       });
     });
   }, []);
