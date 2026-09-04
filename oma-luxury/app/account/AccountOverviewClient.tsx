@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { brand } from "@/config/brand";
 import { useAuth } from "@/store/AuthContext";
 
-export function AccountOverviewClient() {
+export function AccountOverviewClient({ welcome = false }: { welcome?: boolean }) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
 
@@ -24,6 +24,11 @@ export function AccountOverviewClient() {
 
   return (
     <AccountShell title={`Welcome, ${user.name}`} description="Manage your profile, wishlist, delivery details and order history.">
+      {welcome ? (
+        <div className="mb-6 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
+          Your account is ready and you are now signed in.
+        </div>
+      ) : null}
       <div className="grid gap-6 md:grid-cols-2">
         {[
           { title: "Profile", description: "Update your personal details.", href: "/account/profile" },

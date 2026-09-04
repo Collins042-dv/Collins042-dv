@@ -2,10 +2,14 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
+  authIsConfigured,
+  getAuthConfigurationError,
   getCurrentUser,
   login as loginService,
   logout as logoutService,
   register as registerService,
+  resetPassword as resetPasswordService,
+  updatePassword as updatePasswordService,
   updateCurrentUser,
   type AuthUser,
 } from "@/services/auth";
@@ -13,9 +17,13 @@ import {
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
+  configured: boolean;
+  configError: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
   updateProfile: (data: Partial<AuthUser>) => Promise<void>;
 }
 
@@ -24,12 +32,19 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const configured = authIsConfigured();
+  const configError = configured ? null : getAuthConfigurationError();
 
   useEffect(() => {
+    if (!configured) {
+      setLoading(false);
+      return;
+    }
+
     getCurrentUser()
       .then(setUser)
       .finally(() => setLoading(false));
-  }, []);
+  }, [configured]);
 
   const login = async (email: string, password: string) => {
     const authUser = await loginService(email, password);
@@ -46,14 +61,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const resetPassword = async (email: string) => {
+    await resetPasswordService(email);
+  };
+
   const updateProfile = async (data: Partial<AuthUser>) => {
     const authUser = await updateCurrentUser(data);
     setUser(authUser);
   };
 
+  const updatePassword = async (password: string) => {
+    await updatePasswordService(password);
+  };
+
   const value = useMemo(
-    () => ({ user, loading, login, register, logout, updateProfile }),
-    [user, loading],
+    () => ({ user, loading, configured, configError, login, register, logout, resetPassword, updatePassword, updateProfile }),
+    [configError, configured, user, loading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

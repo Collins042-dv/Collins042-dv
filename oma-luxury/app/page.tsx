@@ -148,7 +148,7 @@ export default async function HomePage() {
         <Reveal className="mx-auto max-w-5xl text-center">
           <p className="text-xs uppercase tracking-[0.35em] text-brand-champagne">Brand statement</p>
           <h2 className="mt-8 font-heading text-4xl leading-tight sm:text-5xl lg:text-6xl">
-            STYLE ISN'T JUST WHAT YOU WEAR. IT'S HOW YOU PRESENT YOURSELF.
+            STYLE ISN&apos;T JUST WHAT YOU WEAR. IT&apos;S HOW YOU PRESENT YOURSELF.
           </h2>
         </Reveal>
       </section>

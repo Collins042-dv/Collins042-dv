@@ -8,6 +8,18 @@ export const metadata: Metadata = {
   openGraph: { title: `Login | ${brand.name}`, description: brand.description, type: "website" },
 };
 
-export default function LoginPage() {
-  return <LoginClient />;
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams?: { next?: string | string[] };
+}) {
+  const rawNextPath = Array.isArray(searchParams?.next)
+    ? searchParams?.next[0]
+    : searchParams?.next;
+  const nextPath =
+    typeof rawNextPath === "string" && rawNextPath.startsWith("/")
+      ? rawNextPath
+      : "/account";
+
+  return <LoginClient nextPath={nextPath} />;
 }

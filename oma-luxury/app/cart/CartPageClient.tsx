@@ -14,7 +14,7 @@ export function CartPageClient() {
       <div className="mx-auto max-w-3xl px-6 py-20 text-center lg:px-10">
         <div className="rounded-[2rem] border border-dashed border-brand-beige bg-white p-12 shadow-soft">
           <h1 className="font-heading text-5xl">Your bag is waiting</h1>
-          <p className="mt-4 text-sm leading-8 text-neutral-600">Explore our latest edit of premium women's fashion, bags and fragrances.</p>
+          <p className="mt-4 text-sm leading-8 text-neutral-600">Explore our latest edit of premium women&apos;s fashion, bags and fragrances.</p>
           <Link href="/shop" className="mt-8 inline-flex rounded-full bg-brand-black px-6 py-3 text-sm uppercase tracking-[0.22em] text-white">
             Continue shopping
           </Link>
