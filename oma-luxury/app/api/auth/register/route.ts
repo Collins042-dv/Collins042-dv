@@ -45,11 +45,37 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (signUp.data.session && signUp.data.user) {
+    const profile = await upsertProfile(supabase, {
+      id: signUp.data.user.id,
+      name,
+      email,
+      role: "CUSTOMER",
+    }).catch((error: unknown) =>
+      NextResponse.json({ error: error instanceof Error ? error.message : "Unable to create profile." }, { status: 500 }),
+    );
+
+    if (profile instanceof NextResponse) {
+      return applyCookies(profile);
+    }
+
+    return applyCookies(NextResponse.json({ user: buildAuthUser(signUp.data.user, profile) }));
+  }
+
   const signIn = await supabase.auth.signInWithPassword({ email, password });
 
   if (signIn.error || !signIn.data.user) {
+    const normalizedMessage = mapAuthErrorMessage(signIn.error?.message);
     return applyCookies(
-      NextResponse.json({ error: mapAuthErrorMessage(signIn.error?.message) }, { status: 400 }),
+      NextResponse.json(
+        {
+          error:
+            normalizedMessage === "Email verification is required before signing in."
+              ? "Your account was created, but Supabase email confirmation is enabled. Verify the email or disable confirmation if you need instant sign-in after registration."
+              : normalizedMessage,
+        },
+        { status: 400 },
+      ),
     );
   }
 

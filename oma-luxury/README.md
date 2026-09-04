@@ -148,6 +148,8 @@ using (auth.uid() = id)
 with check (auth.uid() = id);
 ```
 
+The admin customer endpoint verifies the caller is an authenticated `ADMIN`, then uses the server-only `SUPABASE_SERVICE_ROLE_KEY` to read all customer profiles without exposing that key to the browser.
+
 ### Seed the first admin
 
 Run the server-side seed script only after the env vars above exist:

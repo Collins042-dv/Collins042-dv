@@ -42,7 +42,7 @@ export function LoginClient({ nextPath = "/account" }: { nextPath?: string }) {
           </div>
           <div>
             <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-neutral-600">Password</label>
-            <Input type="password" minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} required />
+            <Input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
           </div>
           {!configured && configError ? <p className="text-sm text-amber-700">{configError}</p> : null}
           {error ? <p className="text-sm text-red-600">{error}</p> : null}

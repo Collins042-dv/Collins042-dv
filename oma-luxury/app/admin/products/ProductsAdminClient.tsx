@@ -120,16 +120,23 @@ export function ProductsAdminClient() {
 
     try {
       const product = formToProduct(form);
+      const productPayload = editing
+        ? {
+            ...product,
+            createdAt: editing.createdAt,
+            updatedAt: new Date().toISOString(),
+          }
+        : product;
 
-      if (!product.images.length) {
+      if (!productPayload.images.length) {
         throw new Error("Add at least one product image URL.");
       }
 
       if (editing) {
-        await adminProductService.update(editing.id, product);
+        await adminProductService.update(editing.id, productPayload);
         setMessage("Product updated in the draft admin catalog.");
       } else {
-        await adminProductService.create(product);
+        await adminProductService.create(productPayload);
         setMessage("Product added to the draft admin catalog.");
       }
 
