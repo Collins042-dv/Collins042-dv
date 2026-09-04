@@ -1,4 +1,23 @@
+import fs from "node:fs";
 import { createClient } from "@supabase/supabase-js";
+
+const envFile = ".env.local";
+
+if (fs.existsSync(envFile)) {
+  const file = fs.readFileSync(envFile, "utf8");
+  file
+    .split(/\r?\n/)
+    .filter((line) => line && !line.trim().startsWith("#") && line.includes("="))
+    .forEach((line) => {
+      const separatorIndex = line.indexOf("=");
+      const key = line.slice(0, separatorIndex).trim();
+      const value = line.slice(separatorIndex + 1).trim().replace(/^['"]|['"]$/g, "");
+
+      if (!process.env[key]) {
+        process.env[key] = value;
+      }
+    });
+}
 
 const required = [
   "NEXT_PUBLIC_SUPABASE_URL",

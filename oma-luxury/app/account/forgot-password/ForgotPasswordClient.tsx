@@ -17,7 +17,7 @@ export function ForgotPasswordClient() {
       <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-soft">
         <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">Password reset</p>
         <h1 className="mt-3 font-heading text-5xl">Forgot your password?</h1>
-        <p className="mt-4 text-sm leading-7 text-neutral-600">Enter the email tied to your account and we'll send a secure reset link through Supabase Auth.</p>
+        <p className="mt-4 text-sm leading-7 text-neutral-600">Enter the email tied to your account and we&apos;ll send a secure reset link through Supabase Auth.</p>
         <form
           className="mt-8 space-y-5"
           onSubmit={async (event) => {
