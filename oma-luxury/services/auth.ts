@@ -1,123 +1,131 @@
-// TODO: Replace with real auth provider (Supabase, Firebase, etc.)
-// Currently uses localStorage mock — NOT production-ready
-const AUTH_ENABLED = false;
-const USERS_KEY = "oma-luxury-auth-users";
-const CURRENT_USER_KEY = "oma-luxury-auth-current-user";
-
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  role: UserRole;
 }
 
-interface StoredAuthUser extends AuthUser {
-  password: string;
+import { AUTH_CONFIGURATION_MESSAGE, isAuthConfigured } from "@/lib/auth-config";
+import {
+  validateLoginInput,
+  validatePasswordResetInput,
+  validateProfileInput,
+  validateRegistrationInput,
+} from "@/lib/auth-validation";
+
+export type UserRole = "CUSTOMER" | "ADMIN";
+
+interface AuthResponse {
+  user: AuthUser | null;
 }
 
-function getStorage() {
-  if (typeof window === "undefined") {
-    return null;
+function assertAuthConfigured() {
+  if (!isAuthConfigured()) {
+    throw new Error(AUTH_CONFIGURATION_MESSAGE);
   }
-  return window.localStorage;
 }
 
-function getUsers(): StoredAuthUser[] {
-  const storage = getStorage();
-  if (!storage) {
-    return [];
+async function requestAuth<T>(input: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(input, {
+    ...init,
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+  });
+
+  const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+
+  if (!response.ok) {
+    throw new Error(payload?.error || "Authentication request failed.");
   }
-  const raw = storage.getItem(USERS_KEY);
-  return raw ? (JSON.parse(raw) as StoredAuthUser[]) : [];
+
+  return payload as T;
 }
 
-function setUsers(users: StoredAuthUser[]) {
-  const storage = getStorage();
-  if (!storage) {
-    return;
-  }
-  storage.setItem(USERS_KEY, JSON.stringify(users));
+export function authIsConfigured() {
+  return isAuthConfigured();
 }
 
-function setCurrentUser(user: AuthUser | null) {
-  const storage = getStorage();
-  if (!storage) {
-    return;
-  }
-  if (user) {
-    storage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
-  } else {
-    storage.removeItem(CURRENT_USER_KEY);
-  }
+export function getAuthConfigurationError() {
+  return AUTH_CONFIGURATION_MESSAGE;
 }
 
 export async function register(name: string, email: string, password: string): Promise<AuthUser> {
-  if (AUTH_ENABLED) {
-    throw new Error("Real auth provider not configured.");
+  assertAuthConfigured();
+  validateRegistrationInput(name, email, password);
+  const response = await requestAuth<AuthResponse>("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ name, email, password }),
+  });
+
+  if (!response.user) {
+    throw new Error("Unable to create account.");
   }
 
-  const users = getUsers();
-  const normalizedEmail = email.trim().toLowerCase();
-  if (users.some((user) => user.email.toLowerCase() === normalizedEmail)) {
-    throw new Error("An account with this email already exists.");
-  }
-
-  const user: StoredAuthUser = {
-    id: crypto.randomUUID(),
-    name: name.trim(),
-    email: normalizedEmail,
-    password,
-  };
-
-  users.push(user);
-  setUsers(users);
-  const authUser: AuthUser = { id: user.id, name: user.name, email: user.email };
-  setCurrentUser(authUser);
-  return authUser;
+  return response.user;
 }
 
 export async function login(email: string, password: string): Promise<AuthUser> {
-  if (AUTH_ENABLED) {
-    throw new Error("Real auth provider not configured.");
+  assertAuthConfigured();
+  validateLoginInput(email, password);
+  const response = await requestAuth<AuthResponse>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.user) {
+    throw new Error("Invalid credentials.");
   }
 
-  const user = getUsers().find(
-    (item) => item.email.toLowerCase() === email.trim().toLowerCase() && item.password === password,
-  );
-
-  if (!user) {
-    throw new Error("Invalid email or password.");
-  }
-
-  const authUser: AuthUser = { id: user.id, name: user.name, email: user.email };
-  setCurrentUser(authUser);
-  return authUser;
+  return response.user;
 }
 
 export async function logout(): Promise<void> {
-  setCurrentUser(null);
+  if (!isAuthConfigured()) {
+    return;
+  }
+
+  await requestAuth("/api/auth/logout", { method: "POST" });
+}
+
+export async function resetPassword(email: string): Promise<void> {
+  assertAuthConfigured();
+  validatePasswordResetInput(email);
+  await requestAuth("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  const storage = getStorage();
-  if (!storage) {
+  if (!isAuthConfigured()) {
     return null;
   }
-  const raw = storage.getItem(CURRENT_USER_KEY);
-  return raw ? (JSON.parse(raw) as AuthUser) : null;
+
+  try {
+    const response = await requestAuth<AuthResponse>("/api/auth/me");
+    return response.user;
+  } catch (error) {
+    if (error instanceof Error && error.message === "Authentication request failed.") {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function updateCurrentUser(data: Partial<AuthUser>): Promise<AuthUser> {
-  const currentUser = await getCurrentUser();
-  if (!currentUser) {
-    throw new Error("No active session found.");
+  assertAuthConfigured();
+  validateProfileInput(data.name ?? "", data.email ?? "");
+  const response = await requestAuth<AuthResponse>("/api/auth/profile", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.user) {
+    throw new Error("Unable to update profile.");
   }
 
-  const updatedUser = { ...currentUser, ...data };
-  const users = getUsers().map((user) =>
-    user.id === currentUser.id ? { ...user, name: updatedUser.name, email: updatedUser.email } : user,
-  );
-
-  setUsers(users);
-  setCurrentUser(updatedUser);
-  return updatedUser;
+  return response.user;
 }

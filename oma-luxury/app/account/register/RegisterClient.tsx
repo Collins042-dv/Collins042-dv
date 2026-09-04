@@ -8,13 +8,14 @@ import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/store/AuthContext";
 
 export function RegisterClient() {
-  const { register } = useAuth();
+  const { register, configured, configError } = useAuth();
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
 
   return (
     <div className="mx-auto max-w-xl px-6 py-20 lg:px-10">
@@ -27,9 +28,11 @@ export function RegisterClient() {
             event.preventDefault();
             setLoading(true);
             setError("");
+            setSuccess("");
             try {
               await register(name, email, password);
-              router.push("/account");
+              setSuccess("Account created successfully. Redirecting to your account...");
+              router.push("/account?welcome=1");
             } catch (err) {
               setError(err instanceof Error ? err.message : "Unable to create account.");
             } finally {
@@ -47,10 +50,20 @@ export function RegisterClient() {
           </div>
           <div>
             <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-neutral-600">Password</label>
-            <Input type="password" minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} required />
+            <Input
+              type="password"
+              minLength={8}
+              pattern="^(?=.*\d).{8,}$"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+            <p className="mt-2 text-xs text-neutral-500">Use at least 8 characters and include 1 number.</p>
           </div>
+          {!configured && configError ? <p className="text-sm text-amber-700">{configError}</p> : null}
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          <Button className="w-full" disabled={loading}>{loading ? "Creating account..." : "Register"}</Button>
+          {success ? <p className="text-sm text-emerald-700">{success}</p> : null}
+          <Button className="w-full" disabled={loading || !configured}>{loading ? "Creating account..." : "Create Account"}</Button>
         </form>
         <p className="mt-6 text-sm text-neutral-600">
           Already have an account? <Link href="/account/login" className="text-brand-black underline-offset-4 hover:underline">Sign in</Link>
