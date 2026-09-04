@@ -80,7 +80,7 @@ function formToProduct(form: ProductFormState): Product {
   const now = new Date().toISOString();
 
   return {
-    id: form.id || `${form.category}-${crypto.randomUUID().slice(0, 8)}`,
+    id: form.id || `product-${crypto.randomUUID().slice(0, 8)}`,
     name: form.name.trim(),
     slug: slugify(form.slug || form.name),
     description: form.description.trim(),

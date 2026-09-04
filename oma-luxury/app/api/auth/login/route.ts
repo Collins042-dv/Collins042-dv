@@ -31,7 +31,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const existingProfile = await getProfileByUserId(supabase, signIn.data.user.id).catch(() => null);
+  let existingProfile;
+
+  try {
+    existingProfile = await getProfileByUserId(supabase, signIn.data.user.id);
+  } catch (error) {
+    return applyCookies(
+      NextResponse.json(
+        { error: error instanceof Error ? error.message : "Unable to load your profile role." },
+        { status: 500 },
+      ),
+    );
+  }
+
   const profile =
     existingProfile ||
     (await upsertProfile(supabase, {

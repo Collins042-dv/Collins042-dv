@@ -15,7 +15,13 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (error) {
-    return applyCookies(NextResponse.json({ error: mapAuthErrorMessage(error.message) }, { status: 401 }));
+    const message = mapAuthErrorMessage(error.message);
+
+    if (message === "Invalid credentials.") {
+      return applyCookies(NextResponse.json({ user: null }));
+    }
+
+    return applyCookies(NextResponse.json({ error: message }, { status: 401 }));
   }
 
   if (!user) {

@@ -104,7 +104,9 @@ export function ResetPasswordClient() {
               try {
                 await updatePassword(password);
                 setSuccess("Password updated successfully. Redirecting to sign in...");
-                router.push("/account/login");
+                window.setTimeout(() => {
+                  router.push("/account/login");
+                }, 1200);
               } catch (error) {
                 setRecoveryError(error instanceof Error ? error.message : "Unable to update password.");
               } finally {
