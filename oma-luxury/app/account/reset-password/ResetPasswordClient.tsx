@@ -17,6 +17,15 @@ function getRecoveryTokens() {
   const queryParams = new URLSearchParams(window.location.search);
   const accessToken = hashParams.get("access_token") || queryParams.get("access_token");
   const refreshToken = hashParams.get("refresh_token") || queryParams.get("refresh_token");
+  const tokenHash = queryParams.get("token_hash");
+  const type = queryParams.get("type");
+
+  if (tokenHash) {
+    return {
+      tokenHash,
+      type: type ?? "recovery",
+    };
+  }
 
   if (!accessToken || !refreshToken) {
     return null;

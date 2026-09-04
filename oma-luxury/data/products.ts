@@ -6,6 +6,8 @@ export type ProductStatus =
   | "PREORDER";
 export type ProductCategory = "womens-wear" | "bags" | "perfumes" | "accessories";
 
+export const productCategories = ["womens-wear", "bags", "perfumes", "accessories"] as const;
+
 export interface Product {
   id: string;
   name: string;

@@ -17,6 +17,7 @@ const orderStatuses = [
 export function OrdersAdminClient() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState("");
+  const [updatingOrderId, setUpdatingOrderId] = useState("");
 
   useEffect(() => {
     adminOrderService
@@ -76,15 +77,19 @@ export function OrdersAdminClient() {
                   value={order.status}
                   onChange={async (event) => {
                     setError("");
+                    setUpdatingOrderId(order.id);
                     try {
                       const updated = await adminOrderService.updateStatus(order.id, event.target.value);
                       setOrders((current) => current.map((item) => (item.id === order.id ? updated : item)));
                     } catch (err) {
                       setError(err instanceof Error ? err.message : "Unable to update the order status.");
+                    } finally {
+                      setUpdatingOrderId("");
                     }
                   }}
                   aria-label={`Update status for order ${order.id}`}
                   className="rounded-full border border-brand-beige bg-white px-4 py-3 text-xs uppercase tracking-[0.2em]"
+                  disabled={updatingOrderId === order.id}
                 >
                   {orderStatuses.map((status) => (
                     <option key={status} value={status}>

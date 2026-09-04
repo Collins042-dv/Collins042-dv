@@ -160,7 +160,7 @@ npm install
 npm run seed:admin
 ```
 
-The script exits with a clear message if `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_EMAIL`, or `ADMIN_PASSWORD` is missing. It creates or reuses the auth user, then upserts an `ADMIN` role in `profiles`.
+The script exits with a clear message if `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_EMAIL`, or `ADMIN_PASSWORD` is missing. It creates or reuses the auth user, then upserts an `ADMIN` role in `profiles`.
 
 ### Route protection
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Product, ProductCategory, ProductStatus } from "@/data/products";
-import { collections } from "@/data/products";
+import { collections, productCategories } from "@/data/products";
 import { formatCurrency } from "@/lib/utils";
 import { adminProductService } from "@/services/admin/products";
 import { AdminSectionIntro } from "@/components/admin/AdminSectionIntro";
@@ -215,7 +215,24 @@ export function ProductsAdminClient() {
           <div className="mt-6 space-y-4">
             <div>
               <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-neutral-600">Name</label>
-              <Input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value, slug: current.slug || slugify(event.target.value) }))} required />
+              <Input
+                value={form.name}
+                onChange={(event) =>
+                  setForm((current) => {
+                    const nextName = event.target.value;
+                    const nextAutoSlug = slugify(nextName);
+                    const previousAutoSlug = slugify(current.name);
+                    const shouldUpdateSlug = !current.slug || current.slug === previousAutoSlug;
+
+                    return {
+                      ...current,
+                      name: nextName,
+                      slug: shouldUpdateSlug ? nextAutoSlug : current.slug,
+                    };
+                  })
+                }
+                required
+              />
             </div>
             <div>
               <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-neutral-600">Slug</label>
@@ -244,7 +261,7 @@ export function ProductsAdminClient() {
               <div>
                 <label htmlFor="admin-product-category" className="mb-2 block text-xs uppercase tracking-[0.2em] text-neutral-600">Category</label>
                 <select id="admin-product-category" value={form.category} onChange={(event) => setForm((current) => ({ ...current, category: event.target.value as ProductCategory }))} className="w-full rounded-2xl border border-brand-beige bg-white px-4 py-3 text-sm">
-                  {["womens-wear", "bags", "perfumes", "accessories"].map((category) => (
+                  {productCategories.map((category) => (
                     <option key={category} value={category}>
                       {category}
                     </option>
